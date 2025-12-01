@@ -2,19 +2,21 @@
 import dotenv from "dotenv";
 import connectDB from "./db/database.js";
 
-
 dotenv.config({
-    path: './env'
-})
+  path: "./env",
+});
 
-connectDB();
+connectDB()
+  .then(() => {
+    app.listen(process.env.PORT, () => {
+      console.log(`server listening on: ${process.env.PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.log("Database not connected. ", error);
+  });
 
-
-
-
-
-
- /*
+/*
  import express from 'express';
  const app = express();
 
