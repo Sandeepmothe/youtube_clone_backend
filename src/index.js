@@ -1,6 +1,7 @@
 //  require('dotenv').config({path: './env'});
 import dotenv from "dotenv";
 import connectDB from "./db/database.js";
+import { app } from "./app.js";
 
 dotenv.config({
   path: "./env",
@@ -15,6 +16,8 @@ connectDB()
   .catch((error) => {
     console.log("Database not connected. ", error);
   });
+
+
 
 /*
  import express from 'express';
