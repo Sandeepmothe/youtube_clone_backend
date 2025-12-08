@@ -219,4 +219,50 @@ const refreshAccessToken = asyncHandler(async (req, res)=>{
 
 })
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken }
+const changeCurrentPassword = asyncHandler( async (req, res) => {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+        throw new ApiError(400, "Both current and new passwords are required");
+    }
+
+    const user = await User.findById(req.user._id); 
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }  
+
+    const isPasswordValid = await user.isPasswordCorrect(currentPassword);
+    if (!isPasswordValid) {
+        throw new ApiError(401, "Current password is incorrect");
+    }
+
+    user.password = newPassword;
+    await user.save({ validateBeforeSave: false });
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Password changed successfully")
+    );
+});
+
+const updateAccountDetails = asyncHandler( async (req, res) => {
+    const { fullname, email } = req.body;
+    const updates = {};
+
+    if (fullname) updates.fullname = fullname;
+    if (email) updates.email = email;
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user?._id,
+        { $set: updates },
+        { new: true }
+    ).select("-password -refreshToken");   
+
+    if (!updatedUser) {
+        throw new ApiError(500, "Something went wrong while updating account details");
+    }
+    
+    return res.status(200).json(
+        new ApiResponse(200, updatedUser, "Account details updated successfully")
+    );  
+
+});
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, updateAccountDetails }
